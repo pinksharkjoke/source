@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.weatherMapper">
+    
+  	<select id="countGeo" parameterType="java.util.Map" resultType="int">
+  		select count(*) from geoinfo where gname=#{gname} and gpaldo=#{gpaldo}
+  	</select>
+  	
+  	<select id="selectOneLoc" parameterType="hashMap" resultType="hashMap">
+  		select glat, glon from geoinfo where gname=#{gname} and gpaldo=#{gpaldo}
+  	</select>
+  	
+  	<select id="selectAllLoc" resultType="hashMap">
+  		select * from geoinfo where gno &lt; 13
+  	</select>
+  	
+  	<insert id="regitGeo" parameterType="hashMap">
+  		insert into geoinfo(glat, glon, gname, gpaldo) values(#{glat}, #{glon}, #{gname}, #{gpaldo})
+  	</insert>
+  	
+  	
+  
+  </mapper>

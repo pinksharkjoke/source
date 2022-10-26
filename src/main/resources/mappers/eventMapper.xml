@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.eventMapper">
+  	<select id = "list" resultType = "kr.co.pap.adminpage.EventVO">
+  		select * from event order by ev_id desc
+  	</select>
+  	<select id = "detail" parameterType = "java.lang.Integer" resultType = "kr.co.pap.adminpage.EventVO">
+  		select * from event where ev_id = #{ev_id}
+  	</select>
+  	<update id = "update" parameterType = "kr.co.pap.adminpage.EventVO">
+  		update event set ev_startdate = #{ev_startdate},ev_enddate=#{ev_enddate},ev_pic = #{ev_pic},ev_url = #{ev_url},ev_loc = #{ev_loc},ev_name = #{ev_name} where ev_id = #{ev_id}
+  	</update>
+  	<insert id = "insert" parameterType = "kr.co.pap.adminpage.EventVO">
+  		insert into event
+  		 (ev_startdate,ev_enddate,ev_pic,ev_url,ev_loc,ev_name)
+  		values (#{ev_startdate},#{ev_enddate},#{ev_pic},#{ev_url},#{ev_loc},#{ev_name})
+  	</insert>
+  	<delete id = "delete" parameterType = "java.lang.Integer">
+  		delete from event where ev_id = #{ev_id}
+  	</delete>
+  	<select id = "list2" resultType = "kr.co.pap.adminpage.EventVO">
+  		select * from event order by ev_enddate
+  	</select>
+  </mapper>

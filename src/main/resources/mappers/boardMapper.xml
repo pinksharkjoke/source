@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.pap.boardMapper">
+	<!-- 목록보기 -->
+	<select id="listPage" resultType="BoardVO"
+		parameterType="kr.co.pap.board.SearchCriteria">
+		select
+		bo_num,bo_title,bo_content,bo_DATE,bo_photo,
+		bo_name,bo_heart,bo_modifydate,bo_views,bo_status,
+		ui_id,ca_num,bo_pstatus
+		from
+		(select
+		bo_num,bo_title,bo_content,bo_DATE,bo_photo,
+		bo_name,bo_heart,bo_modifydate,bo_views,bo_status,
+		ui_id,ca_num,bo_pstatus
+		from
+		board
+		where 1=1
+		<include refid="search"></include>
+		<include refid="sort"></include>
+		) MP
+		where (ca_num=#{ca_num}) and (bo_status = 0 or bo_status = 2)
+
+		<include refid="sort"></include>
+
+
+		limit #{rowStart},#{perPageNum}
+	</select>
+
+	<!-- 일반 글들 카운트 -->
+	<select id="listCount"
+		parameterType="kr.co.pap.board.SearchCriteria"
+		resultType="java.lang.Integer">
+		select count(bo_num)
+		from board
+		where 1=1
+		<include refid="search"></include>
+		and (bo_status = 0 or bo_status=2) and (ca_num=#{ca_num})
+		<include refid="sort"></include>
+	</select>
+
+	<!-- 판매중인 글 카운트 -->
+	<select id="listingCount"
+		parameterType="kr.co.pap.board.SearchCriteria"
+		resultType="java.lang.Integer">
+		select count(bo_num)
+		from board
+		where 1=1
+		<include refid="search"></include>
+		and (bo_status = 0 or bo_status=2) and (ca_num=#{ca_num}) and
+		(bo_pstatus=#{bo_pstatus})
+	</select>
+
+	<!-- 게시글&댓글 정보에서 유저 닉네임 조회 -->
+	<select id="getName" parameterType="String" resultType="String">
+		select
+		ui_ncname
+		from userinfo
+		where ui_id = #{ui_id}
+	</select>
+
+	<sql id="search">
+		<if test="searchType != null">
+
+			<if test="searchType == 't'.toString()">and bo_title like '%' #{keyword} '%'</if>
+			<if test="searchType == 'c'.toString()">and bo_content like '%' #{keyword} '%'</if>
+			<if test="searchType == 'w'.toString()">and bo_name like '%' #{keyword} '%'</if>
+			<if test="searchType == 'tc'.toString()">and (bo_title '%' #{keyword} '%') or
+				(bo_content like '%'
+				|| #{keyword} || '%')</if>
+
+		</if>
+	</sql>
+
+	<!-- 게시글 정렬 -->
+	<sql id="sort">
+		<if test="sort == ''">
+			order by bo_num desc
+		</if>
+		<if test="sort == 'bno'">
+			order by bo_num desc
+		</if>
+		<if test="sort == 'viewCount'">
+			order by bo_views desc, bo_num desc
+		</if>
+		<if test="sort == 'replyCount'">
+
+		</if>
+		<if test="sort == 'likeCount'">
+			order by bo_heart desc, bo_num desc
+		</if>
+	</sql>
+	<!-- 공지글 리스트 -->
+	<select id="listnotice" resultType="BoardVO"
+		parameterType="BoardVO">
+		select *
+		from board
+		where (ca_num=#{ca_num}) and
+		(bo_notice=1)
+
+	</select>
+
+
+	<!-- 판매중인 글 보기 -->
+	<select id="listing" resultType="BoardVO"
+		parameterType="kr.co.pap.board.SearchCriteria">
+		select
+		bo_num,bo_title,bo_content,bo_DATE,bo_photo,
+		bo_name,bo_heart,bo_modifydate,bo_views,bo_status,
+		ui_id,ca_num,bo_pstatus
+		from
+		(select
+		bo_num,bo_title,bo_content,bo_DATE,bo_photo,
+		bo_name,bo_heart,bo_modifydate,bo_views,bo_status,
+		ui_id,ca_num,bo_pstatus
+		from
+		board
+		where 1=1
+		<include refid="search"></include>
+		) MP
+		where (ca_num=#{ca_num}) and (bo_status = 0 or bo_status = 2) and
+		(bo_pstatus='판매중')
+		order by bo_num
+		desc
+		limit #{rowStart},#{perPageNum}
+	</select>
+
+
+
+	<!-- 글쓰기 -->
+	<insert id="insert" parameterType="BoardVO">
+		insert into board
+		(bo_num,bo_title,bo_content,bo_date,bo_photo,bo_name,bo_heart,bo_modifydate,bo_views,bo_status,ui_id,ca_num,bo_pstatus,bo_notice,pl_name,pl_lat,pl_lon)
+
+		values(#{bo_num},#{bo_title},#{bo_content},now(),#{bo_photo},#{bo_name},0,now()
+		,0,0,#{ui_id},#{ca_num},#{bo_pstatus},#{bo_notice},#{pl_name},#{pl_lat},#{pl_lon})
+	</insert>
+
+	<!-- 글읽기 -->
+	<select id="detail" parameterType="java.lang.Integer"
+		resultType="BoardVO">
+		select *from board
+		where bo_num=#{bo_num}
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="readCnt" parameterType="java.lang.Integer">
+		update
+		board
+		set
+		bo_views =
+		bo_views + 1
+		where bo_num = #{bo_num}
+	</update>
+
+
+	<!-- 글수정 -->
+	<update id="update" parameterType="BoardVO">
+		update board
+		set
+
+		bo_title=#{bo_title},ca_num=#{ca_num}
+		,bo_content=#{bo_content},bo_photo=#{bo_photo},bo_name=#{bo_name},
+		bo_modifydate=now(),bo_pstatus=#{bo_pstatus}
+		where bo_num=#{bo_num}
+
+	</update>
+	<!-- 글삭제 -->
+	<update id="delete" parameterType="java.lang.Integer">
+		update board
+		set
+		bo_status=1
+		where bo_num=#{bo_num}
+	</update>
+
+	<!-- 신고 -->
+	<update id="report" parameterType="java.lang.Integer">
+		update board
+		set
+		bo_status=2
+		where bo_num=#{bo_num}
+	</update>
+	<!-- 조회수 증가 -->
+	<update id="cnt" parameterType="java.lang.Integer">
+
+		update board
+		set bo_views
+		=bo_views+1
+		where bo_num=#{bo_num}
+
+	</update>
+
+
+	<!-- 게시글 좋아요 조회 -->
+	<select id="findLike" resultType="java.lang.Integer"
+		parameterType="HeartVO">
+		select he_num from heart
+		where bo_num = #{bo_num}
+		and
+		ui_id = #{ui_id}
+	</select>
+
+	<!-- 게시글 좋아요 카운트 -->
+	<update id="like" parameterType="java.lang.Integer">
+		update board
+		set bo_heart
+		=bo_heart+1
+		where bo_num=#{bo_num}
+	</update>
+	<!-- 게시글 좋아요 카운트 취소 -->
+	<update id="dislike" parameterType="java.lang.Integer">
+		update board
+		set bo_heart
+		=bo_heart-1
+		where bo_num=#{bo_num}
+	</update>
+
+	<!-- 좋아요 Heart 테이블 -->
+	<insert id="like2" parameterType="HeartVO">
+		insert into heart(he_num,
+		ui_id, bo_num, co_num, he_status)
+		values(#{he_num},#{ui_id},#{bo_num},
+		#{co_num}, 0)
+	</insert>
+	<!-- 게시글 좋아요 취소 Heart 테이블 -->
+	<delete id="dislike2" parameterType="java.lang.Integer">
+		delete from heart
+		where
+		he_num=#{he_num}
+	</delete>
+
+	<!-- 댓글 좋아요 취소 Heart 테이블 -->
+	<delete id="dislike4" parameterType="HeartVO">
+		delete from heart
+		where
+		co_num=#{co_num} and ui_id=#{ui_id}
+	</delete>
+
+
+	<!-- 댓글 좋아요 조회 -->
+
+	<select id="findLike3" resultType="java.lang.Integer"
+		parameterType="HeartVO">
+		select he_num from heart
+		where co_num = #{co_num}
+		and
+		ui_id = #{ui_id}
+	</select>
+
+	<!-- 댓글 좋아요 카운트 -->
+	<update id="like3" parameterType="java.lang.Integer">
+		update boardcomment
+		set co_heart
+		=co_heart+1
+		where co_num=#{co_num}
+	</update>
+	<!-- 댓글 좋아요 카운트 취소 -->
+	<update id="dislike3" parameterType="java.lang.Integer">
+		update boardcomment
+		set
+		co_heart =co_heart-1
+		where co_num=#{co_num}
+	</update>
+
+
+	<!-- 댓글 목록 -->
+	<select id="listAll3" parameterType="java.lang.Integer"
+		resultType="ReplyVO">
+		select * from boardcomment where (bo_num=#{bo_num}) and
+		(co_status= 0 or
+		co_status = 2)
+		order by co_num desc
+	</select>
+	<!-- 댓글 작성 -->
+	<insert id="insert3" parameterType="ReplyVO">
+		insert into
+		boardcomment(co_num,co_content,co_date,co_status,co_heart,co_modifydate,ui_id,bo_num)
+		values(#{co_num},#{co_content},now(),0,0,now(),#{ui_id},#{bo_num})
+	</insert>
+	<!-- 댓글 수 + -->
+	<update id="replyCntplus" parameterType="java.lang.Integer">
+		update board
+		set replyCnt
+		= replyCnt+1
+		where bo_num=#{bo_num}
+	</update>
+	<!-- 댓글 수 - -->
+	<update id="replyCntmin" parameterType="java.lang.Integer">
+		update board
+		set replyCnt
+		= replyCnt-1
+		where bo_num=#{bo_num}
+	</update>
+	<!-- 댓글 수정 -->
+	<update id="update3" parameterType="ReplyVO">
+		update boardcomment
+		set
+		co_content=#{co_content}
+		where co_num = #{co_num}
+	</update>
+	<!-- 댓글 삭제 -->
+	<update id="delete3" parameterType="java.lang.Integer">
+		update boardcomment
+		set
+		co_status=1
+		where co_num=#{co_num}
+	</update>
+	<!-- 댓글 신고 -->
+	<update id="report3" parameterType="java.lang.Integer">
+		update boardcomment
+		set
+		co_status=2
+		where co_num=#{co_num}
+	</update>
+
+	<!-- 댓글 총 갯수 -->
+	<select id="replyCount" parameterType="java.lang.Integer"
+		resultType="int">
+		select count(co_num)
+		from boardcomment
+		where
+		(bo_num=#{bo_num}) and (co_status=0 or co_status=2)
+	</select>
+
+	<!-- 최근 글 목록조회 -->
+	<select id="listRecent" parameterType="java.lang.Integer"
+		resultType="BoardVO">
+		select *
+		from board
+		where ca_num=#{ca_num} and bo_status=0
+		order by bo_num desc
+		limit 6
+
+	</select>
+
+	<!-- 게시글&댓글 정보에서 유저 닉네임 조회 -->
+	<select id="getGrade" parameterType="String" resultType="String">
+		select
+		ui_grade
+		from userinfo
+		where ui_id = #{ui_id}
+	</select>
+
+	<!-- 인기글 7일 이내 6개 조회 -->
+	<select id="getHot" resultType="BoardVO">
+		select *
+		from board
+		where bo_date >
+		date_add(now(),interval -7 day) and bo_status =
+		0
+		order by bo_views
+		desc, bo_num desc
+		limit 6
+
+	</select>
+	<!-- 이달의 펫 조회 -->
+	<select id="monthPet" resultType="BoardVO">
+		select *
+		from board
+		where bo_date
+		between date_add(now(),interval -1 month ) and
+		now() and (bo_status =
+		0) and(ca_num = 101 or ca_num = 102 or ca_num =
+		103)
+		order by bo_heart
+desc
+		limit 2
+	</select>
+	<!-- 관련 글 보기 -->
+	<select id="relatedPost" resultType="BoardVO"
+		parameterType="String"> select * from board where (pl_name=#{pl_name}) and
+		(bo_status = 0 or bo_status = 2) order by bo_num
+	</select>
+
+
+</mapper>
+

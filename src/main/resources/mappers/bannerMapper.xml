@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "kr.co.pap.bannerMapper">
+
+	<select id="selectrecent" resultType="kr.co.pap.adminpage.BannerDTO"><!-- 가장최근등록한배너불러오기 -->
+		select *
+		from banner
+		order by bn_num desc limit 1
+	</select>
+	<select id="list" resultType="kr.co.pap.adminpage.BannerDTO"><!-- 배너목록불러오기 게시순서대로 -->
+		select *
+		from banner
+		order by bn_order asc
+	</select>
+	<select id="SelBanner" parameterType="java.lang.Integer" resultType="kr.co.pap.adminpage.BannerDTO"><!-- 배너 자세히보기 -->
+		select * from banner
+		where bn_num = #{bn_num}
+	</select>
+	<insert id="insertBanner" parameterType="kr.co.pap.adminpage.BannerDTO"><!-- 배너추가 -->
+		insert into banner(bn_num, bn_name, bn_url,bn_order, bn_img)
+		values (#{bn_num}, #{bn_name}, #{bn_url},#{bn_order}, #{bn_img})
+	</insert>
+	<update id="updateBanner" parameterType="kr.co.pap.adminpage.BannerDTO"><!-- 배너수정 -->
+		update banner
+		set
+		bn_name = #{bn_name}, bn_url = #{bn_url}, bn_order = #{bn_order}, bn_img = #{bn_img}
+		where bn_num = #{bn_num}
+	</update>
+	<delete id="deleteBanner" parameterType="java.lang.Integer"><!-- 배너삭제 -->
+		delete from banner where bn_num = #{bn_num}
+	</delete>
+	<update id="reorderbanner" parameterType="kr.co.pap.adminpage.BannerDTO"><!-- 게시순서 재정렬 -->
+		update banner
+		set bn_order = #{bn_order}
+		where bn_num = #{bn_num}
+	</update>
+
+</mapper>

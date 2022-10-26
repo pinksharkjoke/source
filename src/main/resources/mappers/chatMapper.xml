@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.chatMapper">
+  <!-- 대화내용 추가 -->
+  <insert id="addChat" parameterType="ChatVO">
+  insert into chat
+  (ch_num, ch_fromid, ch_toid, ch_content, ch_sendtime, ch_sellidx, ch_status)
+  values(#{ch_num},#{ch_fromid}, #{ch_toid}, #{ch_content}, now(), #{ch_sellidx}, 0 )
+  </insert>
+  
+  <!-- 대화내용 불러오기 -->
+  <select id="getChat" resultType="ChatVO" parameterType="ChatVO">
+  select * from chat
+  where (ch_fromid = #{ch_fromid} and ch_toid = #{ch_toid}) or (ch_fromid =#{ch_toid} and ch_toid = #{ch_fromid})
+  order by ch_num  
+  </select>
+  
+  <!-- 회원목록 불러오기 -->
+  <select id="listUsers" resultType="UserVO">
+  select * from userinfo
+  
+  
+  </select>
+  
+  
+  </mapper>

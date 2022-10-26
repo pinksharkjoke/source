@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.chartMapper">
+  		
+  		<select id ="loginduplicate" parameterType="java.lang.String" resultType = "kr.co.pap.adminpage.LoginStatVO"><!-- 당일 로그인기록이 있는지 체크 -->
+  	select * from loginstat where DATE_FORMAT(ls_date,'%Y-%m-%d') = DATE_FORMAT(now(),'%Y-%m-%d') and ui_id = #{value}
+ 
+  </select>
+  		
+ 		<insert id ="logincnt" parameterType="java.lang.String">
+ 		insert into loginstat(ls_date,ui_id) values(now(),#{value})
+ 		</insert>
+ 		
+ 		<insert id="joincnt">
+ 		insert into joinstat(js_date,js_status) values(now(),1)
+ 		</insert>
+ 		<!-- 일별조회 -->
+ 		<select id="joinstatday" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		SELECT count(*) FROM joinstat WHERE  DATE_FORMAT(js_date,'%Y-%m-%d') = DATE_FORMAT(#{value},'%Y-%m-%d') and js_status = 1
+ 		</select>
+ 		<select id="loginstatday" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		select count(*) from loginstat where DATE_FORMAT(ls_date,'%Y-%m-%d') = DATE_FORMAT(#{value},'%Y-%m-%d')
+ 		</select>
+ 		
+ 		<!-- 월별조회 -->
+ 		<select id="joinstatmonth" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		SELECT count(*) FROM joinstat WHERE  DATE_FORMAT(js_date,'%Y-%m') = DATE_FORMAT(now(),#{value}) and js_status = 1
+ 		</select>
+ 		<select id="loginstatmonth" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		select count(*) from loginstat where DATE_FORMAT(ls_date,'%Y-%m') = DATE_FORMAT(now(),#{value})
+ 		</select>
+ 		
+ 		<!-- 연도별조회 -->
+ 		<select id="joinstatyear" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		SELECT count(*) FROM joinstat WHERE  DATE_FORMAT(js_date,'%Y') = DATE_FORMAT(now(),#{value}) and js_status = 1
+ 		</select>
+ 		<select id="loginstatyear" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 		SELECT count(*) FROM loginstat WHERE  DATE_FORMAT(ls_date,'%Y') = DATE_FORMAT(now(),#{value}) 
+ 		</select>
+ 		
+  </mapper>

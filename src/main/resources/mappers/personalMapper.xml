@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.personalMapper">
+  	
+  	<!-- 메모 목록 
+  	<select id="memo" parameterType="java.lang.String" resultType="MemoVO">
+  		select *
+  		from memo
+  		where ui_id=#{ui_id}
+  	</select>
+	-->
+	
+	<!-- 메모 목록(페이징) -->
+	<select id="memo" resultType="MemoVO" parameterType="kr.co.pap.personal.Criteria">
+		SELECT  mm_mno, 
+		        ui_id, 
+		        mm_title,
+		        mm_date,
+		        mm_contents,
+		        mm_filename, 
+		        mm_ncname
+		 FROM ( 
+		        SELECT 	mm_mno, 
+		        		ui_id, 
+		        		mm_title,
+		        		mm_date,
+		        		mm_contents,
+		        		mm_filename, 
+		        		mm_ncname,
+		               	ROW_NUMBER() OVER(ORDER BY mm_mno DESC) AS RNUM
+		        	 FROM memo
+		        	 WHERE ui_id=#{ui_id}
+		                       ) MP
+		WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd}
+		ORDER BY mm_mno DESC
+	</select>
+	
+	<!-- 메모 갯수 세기 -->
+	<select id="memoCnt" resultType="java.lang.Integer">
+		select count(ui_id)
+		from memo
+		where mm_mno > 0
+	</select>
+
+  	<!-- 메모 1개 상세보기 -->
+	<select id="detailmemo" parameterType="java.lang.Integer" resultType="MemoVO">
+		select * from memo
+		where mm_mno = #{mm_mno}
+	</select>
+	
+	<select id="myBoardCount" parameterType="String" resultType="int">
+		select count(*) from board where ui_id=#{ui_id} and (bo_status = 0 or 2) and ca_num = #{ca}
+	</select>
+	
+	<select id="myBoardList" parameterType="kr.co.pap.personal.PagingVO" resultType="BoardVO">
+		select * 
+		from board
+		where ui_id=#{ui_id} and (bo_status = 0 or 2) and ca_num=#{ca}
+		order by bo_num desc limit #{start}, #{cntPerPage}
+	</select>
+	
+	<!-- 메모 추가 -->
+	<insert id="insertmemo" parameterType="MemoVO">
+		insert into memo(ui_id,mm_mno,mm_title,mm_date,mm_contents,mm_ncname,mm_filename)
+		values(#{ui_id},#{mm_mno},#{mm_title},now(),#{mm_contents},#{mm_ncname},#{mm_filename})
+	</insert>
+
+	<!-- 메모 수정 -->
+	<update id="updatememo" parameterType="MemoVO">
+		update memo
+		set mm_title=#{mm_title},mm_contents=#{mm_contents},mm_fileName=#{mm_fileName}
+		where mm_mno=#{mm_mno}
+	</update>
+
+	<!-- 메모 삭제 -->
+	<delete id="deletememo" parameterType="java.lang.Integer">
+		delete from memo
+		where mm_mno=#{mm_mno}
+	</delete>
+	
+	<!-- 캘린더 페이지 이동 -->
+	<select id="calenList"  parameterType="java.lang.String" resultType="CalVO">
+		select ui_id, cd_id, cd_title,
+		date_format(cd_start, '%Y-%m-%dT%H:%i:%S') as cd_start,
+		date_format(cd_end, '%Y-%m-%dT%H:%i:%S') as cd_end,
+		cd_allday 
+		from calendar
+		where ui_id=#{ui_id}
+	</select>
+
+	<!-- 일정 추가 -->
+	<insert id="calinsert" parameterType="CalVO">
+		insert into calendar
+		values(#{ui_id},#{cd_id},#{cd_title},#{cd_start},#{cd_end},#{cd_allday})
+	</insert>
+
+	<!-- 일정 수정 -->
+	<update id="calupdate" parameterType="CalVO">
+		update calendar
+		set cd_title=#{cd_title},cd_start=#{cd_start},cd_end=#{cd_end}
+		where cd_id=#{cd_id}
+	</update>
+
+	<!-- 일정 삭제 -->
+	<delete id="caldelete" parameterType="java.lang.Integer">
+		delete from calendar
+		where cd_id=#{cd_id}
+	</delete>
+  </mapper>

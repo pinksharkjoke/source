@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<typeAliases>
+<typeAlias type="kr.co.pap.account.UserVO" alias="UserVO" />
+	<typeAlias type="kr.co.pap.account.LoginVO" alias="LoginVO" />
+	<typeAlias type="kr.co.pap.board.BoardVO" alias="BoardVO"/>
+	<typeAlias type="kr.co.pap.board.ReplyVO" alias="ReplyVO"/>
+	<typeAlias type="kr.co.pap.category.CategoryVO" alias="CategoryVO"/>
+	<typeAlias type="kr.co.pap.board.HeartVO" alias="HeartVO"/>
+	<typeAlias type="kr.co.pap.adminpage.BannerDTO" alias="BannerDTO"/>
+	<typeAlias type="kr.co.pap.personal.MemoVO" alias="MemoVO"/>
+	<typeAlias type="kr.co.pap.personal.CalVO" alias="CalVO"/>
+	<typeAlias type="kr.co.pap.adminpage.LoginStatVO" alias="LoginStatVO"/>
+	<typeAlias type="kr.co.pap.adminpage.JoinStatVO" alias="JoinStatVO"/>
+	<typeAlias type="kr.co.pap.chat.ChatVO" alias="ChatVO"/>
+	<typeAlias type="kr.co.pap.map.MapVO" alias="MapVO"/>
+
+</typeAliases>
+</configuration>

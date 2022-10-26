@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.pap.mapMapper">
+
+	<!-- 지도 정보 가져오기 -->
+	<select id="listPage" resultType="MapVO"
+		parameterType="kr.co.pap.map.MapCriteria">
+		select *
+		from (
+		select pl_name,
+		pl_num,
+		pl_lat,
+		pl_lon,
+		pl_category,
+		pl_phnum,
+		pl_url,
+		ui_id,
+		row_number() over(order by pl_num
+		desc) as rnum
+		from map
+		) mp
+		where rnum between #{rowStart} and #{rowEnd}
+		order by pl_num desc
+	</select>
+
+	<select id="listCount" resultType="int">
+
+		select count(pl_num)
+		from map
+		where pl_num > 0
+
+	</select>
+	<!-- 지도 등록하기 -->
+	<insert id="insertmap" parameterType="MapVO">
+		insert into map
+		(pl_num,pl_lat,pl_lon,pl_name,pl_category,pl_phnum,pl_url,ui_id)
+		values(#{pl_num},(#{pl_lat}+0.000000000001),(#{pl_lon}+0.000000000001),#{pl_name},#{pl_category},#{pl_phnum},#{pl_url},#{ui_id})
+	</insert>
+
+
+	<!-- 병원 -->
+	<select id="listPageHospital" resultType="MapVO">
+		select *
+		from map
+		where
+		(pl_category='병원')
+		order by pl_num desc
+	</select>
+
+
+
+	<!-- 카페 -->
+	<select id="listPageCafe" resultType="MapVO">
+		select * from map
+		where
+		(pl_category='카페')
+		order by pl_num desc
+	</select>
+
+
+	<!-- 마트 -->
+	<select id="listPageMart" resultType="MapVO">
+		select *
+		from map
+		where
+		(pl_category='마트')
+		order by pl_num desc
+	</select>
+
+
+	<!-- 기타 -->
+	<select id="listPageEtc" resultType="MapVO">
+		select * from map
+		where (pl_category='기타')
+		order by pl_num desc
+
+	</select>
+
+
+	<!-- 식당 -->
+	<select id="listPageRestaurant" resultType="MapVO">
+		select *
+		from
+		map
+		where (pl_category='식당')
+		order by pl_num desc
+	</select>
+
+
+	<!-- 놀이터 -->
+	<select id="listPagePlayground" resultType="MapVO">
+		select *
+		from
+		map
+		where (pl_category='놀이터')
+		order by pl_num desc
+	</select>
+
+
+
+	<!-- 관련글  -->
+	<select id="relatedPost" resultType="MapVO">
+		select *
+		from
+		map
+		where pl_name=#{pl_name}
+	</select>
+
+
+	<!-- 지도 상세정보 -->
+	<select id="detailmap" parameterType="String" resultType="MapVO">
+		select
+		*from map
+		where pl_name=#{pl_name}
+	</select>
+
+	<!-- 지도 수정 -->
+	<update id="updatemap" parameterType="MapVO">
+		update map
+		set
+		pl_lat=#{pl_lat},pl_lon=#{pl_lon},pl_category=#{pl_category},
+		pl_phnum=#{pl_phnum},pl_url=#{pl_url}
+		where pl_name=#{pl_name}
+
+	</update>
+
+	<!-- 지도 삭제 -->
+	<delete id="deletemap" parameterType="String">
+		delete from map
+		where
+		pl_name=#{pl_name}
+	</delete>
+
+
+</mapper>

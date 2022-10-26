@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="kr.co.pap.userboardmanageMapper">
+  	<!-- 신고된 글 보기 -->
+  	<select id ="list" resultType = "BoardVO" parameterType = "kr.co.pap.adminpage.ReportCriteria"><!-- 신고된 게시글 목록 -->
+  		select * from board where bo_status = 2 order by bo_num desc limit ${rowStart},#{perPageNum}
+  	</select>
+  	<select id = "replylist" resultType = "ReplyVO"><!-- 신고된댓글목록 -->
+  		select * from boardcomment where co_status =2 order by co_num desc
+  	</select>
+  	<update id = "reportboarddelete" parameterType="java.lang.Integer"><!-- 신고된 게시글 삭제 -->
+  		update board set bo_status = 3 where bo_num = #{bo_num}
+  	</update>
+  	<update id = "reportboardback" parameterType ="java.lang.Integer"><!-- 신고대상이아닐경우 -->
+  		update board set bo_status = 0 where bo_num =#{bo_num}
+  	
+  	</update>
+  	<update id = "reportreplydelete" parameterType="java.lang.Integer"><!-- 신고된 댓글 삭제 -->
+  		update boardcomment set co_status = 3 where co_num = #{co_num}
+  	</update>
+  	<update id = "reportreplyback" parameterType ="java.lang.Integer"><!-- 신고대상이아닐경우 -->
+  		update boardcomment set co_status = 0 where co_num =#{co_num}
+  	</update>
+  	<!-- 유저 제재 -->
+  	<update id = "userban" parameterType = "kr.co.pap.account.UserVO"><!-- 유저정지 -->
+  		update userinfo set ui_prohibit = 1,ui_stprohibit = now(),ui_enprohibit = #{ui_enprohibit} where ui_id =#{ui_id}
+  	</update>
+  	<update id = "writeban" parameterType = "kr.co.pap.account.UserVO"><!-- 글쓰기제한 -->
+  		update userinfo set ui_prohibit = 2,ui_stprohibit = now(),ui_enprohibit = #{ui_enprohibit} where ui_id =#{ui_id}
+  	</update>
+  	<update id = "banclear" parameterType = "String">
+  		update userinfo set ui_prohibit = 0,ui_stprohibit = null,ui_enprohibit = null where ui_id = #{value}
+  	</update>
+  	<update id = "usergrademanager" parameterType = "String">
+  		update userinfo set ui_grade = '매니저' where ui_id = #{value}
+  	</update>
+  	<update id = "usergradeexpert" parameterType = "String">
+  		update userinfo set ui_grade = '전문가' where ui_id = #{value}
+  	</update>
+  	<update id = "usergradenormal" parameterType = "String">
+  		update userinfo set ui_grade = '평회원' where ui_id = #{value}
+  	</update>
+  	<select id ="reportcnt" resultType="java.lang.Integer">
+  		select count(*) from board where bo_status = 2
+  	</select>
+  	<select id ="reportreplycnt" resultType="java.lang.Integer">
+  		select count(*) from boardcomment where co_status = 2
+  	</select>
+  	<select id = "gradeupcnt" resultType = "java.lang.Integer">
+  		select count(*) from board where ca_num = 902 and bo_status = 0
+  	</select>
+  	<select id = "gradeuplist" resultType = "BoardVO">
+  		select * from board where ca_num =902 and bo_status = 0
+  	</select>
+  </mapper>
